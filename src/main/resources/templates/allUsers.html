@@ -18,7 +18,7 @@
             <div class="header__left">
                 <a th:text="${user.getUsername()}" class="navbar-brand text-white" href="/user"></a>
                 <span>with roles:</span>
-                <span th:each="role : ${user.roles}" th:text="${role.getName()} + ' '"></span>
+                <span th:each="role : ${roles}" th:text="${role.getName()} + ' '"></span>
             </div>
             <a class="text-white-50" href="/logout">Logout</a>
         </div>
@@ -78,7 +78,7 @@
                                     <td th:text="${user.username}"></td>
                                     <td th:text="${user.age}"></td>
                                     <td>
-                                        <span th:each="role : ${user.roles}" th:text="${role.name} + ' '"></span>
+                                        <span th:each="role : ${user.getAuthorities()}"  th:text="${role.getAuthority()} + ' '"></span>
                                     </td>
                                     <td>
                                         <button class="btn text-white btn__edit"
@@ -125,7 +125,7 @@
                                                                     <option th:each="role : ${roles}"
                                                                             th:value="${role.id}"
                                                                             th:text="${role.name}"
-                                                                            th:selected="${user.roles != null && user.roles.contains(role)}">
+                                                                            th:selected="${roles != null && roles.contains(role)}">
                                                                     </option>
                                                                 </select>
                                                             </div>
@@ -190,7 +190,7 @@
                                                                     <option th:each="role : ${roles}"
                                                                             th:value="${role.id}"
                                                                             th:text="${role.name}"
-                                                                            th:selected="${user.roles != null && user.roles.contains(role)}">
+                                                                            th:selected="${roles != null && roles.contains(role)}">
                                                                     </option>
                                                                 </select>
                                                             </div>
@@ -238,6 +238,8 @@
                                             <option th:each="role : ${roles}"
                                                     th:value="${role.id}"
                                                     th:text="${role.name}">
+
+
                                             </option>
                                         </select>
                                     </div>
