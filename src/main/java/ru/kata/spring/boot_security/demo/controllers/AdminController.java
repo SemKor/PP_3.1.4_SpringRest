@@ -4,6 +4,8 @@ package ru.kata.spring.boot_security.demo.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.exception_handling.NoSuchUserException;
 import ru.kata.spring.boot_security.demo.models.Role;
@@ -11,6 +13,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -49,10 +52,17 @@ public class AdminController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User user) {
-        User existingUser = userService.showUser(id);
-        if (existingUser == null) {
-            throw new NoSuchUserException("User with ID = " + id + " not found");
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody @Valid User user,
+                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMsg = new StringBuilder();
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            for (FieldError error : errors) {
+                errorMsg.append(error.getField())
+                        .append(" - ").append(error.getDefaultMessage())
+                        .append(";");
+            }
+            throw new NoSuchUserException(errorMsg.toString());
         }
         userService.updateUser(user);
         return ResponseEntity.ok(user);
