@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
-
 import java.security.Principal;
 import java.util.List;
 
@@ -19,12 +19,12 @@ public class MainController {
 
     private final UserService userService;
 
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     @Autowired
-    public MainController(UserService userService, RoleRepository roleRepository) {
+    public MainController(UserService userService, RoleRepository roleRepository, RoleService roleService) {
         this.userService = userService;
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
     }
 
     @GetMapping("/admin")
@@ -32,7 +32,7 @@ public class MainController {
         List<User> allUsers = userService.showAllUsers();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByUsername(authentication.getName());
-        List<Role> roles = roleRepository.findAll();
+        List<Role> roles = roleService.getAllRoles();
         model.addAttribute("allUsers", allUsers);
         model.addAttribute("user", user);
         model.addAttribute("roles", roles);

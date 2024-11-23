@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.exception_handling.NoSuchUserException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
+import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -22,12 +21,12 @@ public class AdminController {
 
     private final UserService userService;
 
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserService userService, RoleRepository roleRepository) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
     }
 
     @GetMapping
@@ -39,9 +38,6 @@ public class AdminController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable Integer id) {
         User user = userService.showUser(id);
-        if (user == null) {
-            throw new NoSuchUserException("User with ID = " + id + " not found");
-        }
         return ResponseEntity.ok(user);
     }
 
@@ -52,18 +48,7 @@ public class AdminController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody @Valid User user,
-                                           BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMsg.append(error.getField())
-                        .append(" - ").append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new NoSuchUserException(errorMsg.toString());
-        }
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody @Valid User user) {
         userService.updateUser(user);
         return ResponseEntity.ok(user);
     }
@@ -71,15 +56,12 @@ public class AdminController {
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable Integer id) {
         User user = userService.showUser(id);
-        if (user == null) {
-            throw new NoSuchUserException("User with ID = " + id + " not found");
-        }
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/roles")
     public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+        return roleService.getAllRoles();
     }
 }
